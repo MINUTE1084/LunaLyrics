@@ -22,7 +22,6 @@ namespace LunaLyrics.Assets.Scripts
         [DllImport(DllName)] private static extern double GetDurationInSeconds();
         [DllImport(DllName)] private static extern bool IsPlaying();
 
-        public TMP_Text displayText;
         public TextAnimator lyricsText;
         public Transform textParent;
         public Material colorMaterial;
@@ -74,7 +73,6 @@ namespace LunaLyrics.Assets.Scripts
             else
             {
                 isInitialized = false;
-                if (displayText != null) displayText.text = "Error";
             }
         }
 
@@ -143,7 +141,6 @@ namespace LunaLyrics.Assets.Scripts
 
         private void UpdateUI(double position, bool playing, bool hasData)
         {
-            if (displayText == null) return;
             if (hasData)
             {
                 var mediaKey = $"{_title}-{_artist}";

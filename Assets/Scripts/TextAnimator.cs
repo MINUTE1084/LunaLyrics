@@ -29,6 +29,7 @@ namespace LunaLyrics.Assets.Scripts
 
         private float timer = 0f;
         private float randomYPos;
+        private float prevYPos;
 
         private Coroutine typingCoroutine;
         private bool isTyping;
@@ -102,21 +103,32 @@ namespace LunaLyrics.Assets.Scripts
             textMeshPro.maxVisibleCharacters = 0;
             textMeshPro.ForceMeshUpdate();
 
-            Vector3 direction = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), 0).normalized;
-            Vector3 newPosition = lastTextPos + direction * (minDistance + UnityEngine.Random.Range(0, randomOffset));
+            Vector3 direction = Random.insideUnitCircle.normalized;
+            Vector3 newPosition;
+            do
+            {
+                newPosition = lastTextPos + direction * (minDistance + Random.Range(0, randomOffset));
 
-            if (newPosition.x < minX) newPosition.x = maxX - newPosition.x;
-            if (newPosition.x > maxX) newPosition.x -= maxX;
-            if (newPosition.y < minY) newPosition.y = maxY - newPosition.x;
-            if (newPosition.y > maxY) newPosition.y -= maxY;
+                if (newPosition.x < minX) newPosition.x = maxX - newPosition.x;
+                if (newPosition.x > maxX) newPosition.x -= maxX;
+                if (newPosition.y < minY) newPosition.y = maxY - newPosition.x;
+                if (newPosition.y > maxY) newPosition.y -= maxY;
 
-            newPosition.x = Mathf.Clamp(newPosition.x, minX, Mathf.Max(minX, maxX - textWidth));
-            newPosition.y = Mathf.Clamp(newPosition.y, minY + textHeight / 2, maxY - textHeight / 2);
+                newPosition.x = Mathf.Clamp(newPosition.x, minX, Mathf.Max(minX, maxX - textWidth));
+                newPosition.y = Mathf.Clamp(newPosition.y, minY + textHeight / 2, maxY - textHeight / 2);
+            }
+            while ((lastTextPos - newPosition).magnitude < minDistance);
 
             lastTextPos = newPosition;
             rectTransform.anchoredPosition = lastTextPos;
 
-            randomYPos = (startYPos + (randomYPosOffset * Random.Range(1, randomYPosLevel))) * (Random.value < 0.5f ? -1 : 1);
+            do
+            {
+                randomYPos = (startYPos + (randomYPosOffset * Random.Range(1, randomYPosLevel))) * (Random.value < 0.5f ? -1 : 1);
+            }
+            while (prevYPos == randomYPos);
+
+            prevYPos = randomYPos;
 
             var viewpoint = Camera.main.WorldToViewportPoint(transform.position);
             if (viewpoint.y < 0.25f) randomYPos = Mathf.Abs(randomYPos);

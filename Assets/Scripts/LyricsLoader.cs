@@ -45,7 +45,42 @@ namespace LunaLyrics.Assets.Scripts
 
                         if (result.syncedLyrics.Count > 0)
                         {
-                            result.syncedLyrics[^1].LyricDuration = timeNum - result.syncedLyrics[^1].TimeInSeconds;
+                            var lastData = result.syncedLyrics[^1];
+                            double textLength = lastData.Text.Length;
+                            result.syncedLyrics[^1].LyricDuration = timeNum - lastData.TimeInSeconds;
+
+                            if (textLength >= 50)
+                            {
+                                var lastIndex = result.syncedLyrics.Count - 1;
+
+                                var sepCount = Math.Ceiling(textLength / 40d);
+                                var targetLength = textLength / sepCount;
+                                var lyricsWords = lastData.Text.Split(' ');
+
+                                var newLyrics = "";
+                                var timeOffset = 0d;
+                                var duration = 0d;
+                                foreach (var word in lyricsWords)
+                                {
+                                    newLyrics += word + ' ';
+                                    if (newLyrics.Length > targetLength || lyricsWords[^1] == word)
+                                    {
+                                        duration = lastData.LyricDuration * (newLyrics.Length / textLength);
+
+                                        result.syncedLyrics.Add(new LyricLine
+                                        {
+                                            TimeInSeconds = lastData.TimeInSeconds + timeOffset,
+                                            Text = RemoveSpaces(newLyrics),
+                                            LyricDuration = duration
+                                        });
+
+                                        timeOffset += duration - 0.4f;
+                                        newLyrics = "";
+                                    }
+                                }
+
+                                result.syncedLyrics.RemoveAt(lastIndex);
+                            }
                         }
 
                         result.syncedLyrics.Add(new LyricLine
