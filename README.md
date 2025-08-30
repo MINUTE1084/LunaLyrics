@@ -1,7 +1,9 @@
 # LunaLyrics
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)\
-LunaLyrics는 현재 재생 중인 음악을 감지하여 Project Moon 스타일의 연출로 가사를 화면에 표시해주는 실시간 가사 오버레이 프로그램입니다.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+LunaLyrics는 현재 재생 중인 음악을 감지하여 **Project Moon 스타일 연출**로 가사를 화면에 표시해주는 실시간 가사 오버레이 프로그램입니다.
+
 
 <br>
 
@@ -41,8 +43,8 @@ LunaLyrics는 현재 재생 중인 음악을 감지하여 Project Moon 스타일
 
 ## Tech Stack
 * **Main Engine**: `Unity`
-* **Lyrics Data**: `[LRCLIB](https://lrclib.net/)`
+* **Lyrics Data**: `LRCLIB`
 
 ## Special Thanks
-**Project Moon**
+**Project Moon**\
 **[LRCLIB](https://lrclib.net/)**
