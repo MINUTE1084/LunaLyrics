@@ -105,6 +105,8 @@ namespace LunaLyrics.Assets.Scripts
 
             Vector3 direction = Random.insideUnitCircle.normalized;
             Vector3 newPosition;
+
+            int loopCount = 0;
             do
             {
                 newPosition = lastTextPos + direction * (minDistance + Random.Range(0, randomOffset));
@@ -117,16 +119,17 @@ namespace LunaLyrics.Assets.Scripts
                 newPosition.x = Mathf.Clamp(newPosition.x, minX, Mathf.Max(minX, maxX - textWidth));
                 newPosition.y = Mathf.Clamp(newPosition.y, minY + textHeight / 2, maxY - textHeight / 2);
             }
-            while ((lastTextPos - newPosition).magnitude < minDistance);
+            while (((lastTextPos - newPosition).magnitude < minDistance) && loopCount++ < 30);
 
             lastTextPos = newPosition;
             rectTransform.anchoredPosition = lastTextPos;
 
+            loopCount = 0;
             do
             {
                 randomYPos = (startYPos + (randomYPosOffset * Random.Range(1, randomYPosLevel))) * (Random.value < 0.5f ? -1 : 1);
             }
-            while (prevYPos == randomYPos);
+            while ((prevYPos == randomYPos) && loopCount++ < 30);
 
             prevYPos = randomYPos;
 
