@@ -12,7 +12,7 @@ namespace LunaLyrics.Assets.Scripts
         public string trackName;
         public string artistName;
         public string albumName;
-        public float duration;
+        public double duration;
         public bool instrumental;
 
         public string plainLyrics;
@@ -21,7 +21,14 @@ namespace LunaLyrics.Assets.Scripts
 
     public struct SyncedLyricsData
     {
-        public float duration;
-        public Dictionary<float, string> syncedLyrics;
+        public double duration;
+        public List<LyricLine> syncedLyrics;
+    }
+
+    public class LyricLine
+    {
+        public double TimeInSeconds;
+        public double LyricDuration;
+        public string Text;
     }
 }
