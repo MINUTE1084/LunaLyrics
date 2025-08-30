@@ -50,8 +50,8 @@ namespace LunaLyrics.Assets.Scripts
             float screenWidth = parentRect.rect.width;
             float screenHeight = parentRect.rect.height;
 
-            float paddingX = screenWidth * 0.15f;
-            float paddingY = screenHeight * 0.15f;
+            float paddingX = screenWidth * 0.05f;
+            float paddingY = screenHeight * 0.1f;
 
             minX = parentRect.rect.xMin + paddingX;
             maxX = parentRect.rect.xMax - paddingX;
@@ -105,12 +105,12 @@ namespace LunaLyrics.Assets.Scripts
             Vector3 direction = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), 0).normalized;
             Vector3 newPosition = lastTextPos + direction * (minDistance + UnityEngine.Random.Range(0, randomOffset));
 
-            if (newPosition.x < minX) newPosition.x = maxX;
-            if (newPosition.x > maxX) newPosition.x = minX;
-            if (newPosition.y < minY) newPosition.y = maxY;
-            if (newPosition.y > maxY) newPosition.y = minY;
+            if (newPosition.x < minX) newPosition.x = maxX - newPosition.x;
+            if (newPosition.x > maxX) newPosition.x -= maxX;
+            if (newPosition.y < minY) newPosition.y = maxY - newPosition.x;
+            if (newPosition.y > maxY) newPosition.y -= maxY;
 
-            newPosition.x = Mathf.Clamp(newPosition.x, minX, maxX - textWidth);
+            newPosition.x = Mathf.Clamp(newPosition.x, minX, Mathf.Max(minX, maxX - textWidth));
             newPosition.y = Mathf.Clamp(newPosition.y, minY + textHeight / 2, maxY - textHeight / 2);
 
             lastTextPos = newPosition;

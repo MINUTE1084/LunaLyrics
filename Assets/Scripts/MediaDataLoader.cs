@@ -153,6 +153,9 @@ namespace LunaLyrics.Assets.Scripts
                     objectPool.Clear();
                     colorMaterial.SetColor("_GlowColor", textColors[UnityEngine.Random.Range(0, textColors.Length)]);
                     lyricsData = emptyData;
+                    currentLyricIndex = -1;
+
+                    Debug.Log($"{_title}, {_artist}, {_duration}");
                     LoadLyrics(_title, _artist, mediaKey, _duration);
                 }
                 if (playing) UpdateLyricUI(position);

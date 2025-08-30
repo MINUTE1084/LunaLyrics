@@ -14,7 +14,7 @@ namespace LunaLyrics.Assets.Scripts
         public static async UniTask<SyncedLyricsData> SearchLyrics(string artist, string title)
         {
             var result = new SyncedLyricsData { syncedLyrics = new() };
-            string uri = $"https://lrclib.net/api/get?artist_name={artist.Replace(' ', '+')}&track_name={title.Replace(' ', '+')}";
+            string uri = $"https://lrclib.net/api/get?artist_name={RemoveBracketsAndSpaces(artist).Replace(' ', '+')}&track_name={RemoveBracketsAndSpaces(title).Replace(' ', '+')}";
 
             try
             {
@@ -51,7 +51,7 @@ namespace LunaLyrics.Assets.Scripts
                         result.syncedLyrics.Add(new LyricLine
                         {
                             TimeInSeconds = timeNum - 0.25f,
-                            Text = RemoveBracketsAndSpaces(lyricsStr)
+                            Text = RemoveSpaces(lyricsStr)
                         });
                     }
 
@@ -68,6 +68,15 @@ namespace LunaLyrics.Assets.Scripts
 
                 result.syncedLyrics[^1].LyricDuration = result.syncedLyrics[^1].Text.Length * 0.15f;
             }
+
+            return result;
+        }
+
+        public static string RemoveSpaces(string input)
+        {
+            string result = Regex.Replace(input, "\\s\\(.*?\\)", "");
+            result = Regex.Replace(result, "\\s+", " ");
+            result = result.Trim();
 
             return result;
         }
