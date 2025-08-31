@@ -32,7 +32,7 @@ LunaLyrics는 현재 재생 중인 음악을 감지하여 **Project Moon 스타�
 
 ## Download
 완성된 프로그램은 아래 **GitHub Releases** 페이지에서 다운로드할 수 있습니다.
-**[최신 버전 다운로드 (GitHub Releases)](https://github.com/your-username/LunaLyrics/releases)**
+**[최신 버전 다운로드 (GitHub Releases)](https://github.com/MINUTE1084/LunaLyrics/releases)**
 
 다운로드 후 압축을 풀고 `LunaLyrics.exe` 파일을 실행하세요.
 
