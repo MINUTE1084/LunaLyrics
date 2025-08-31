@@ -4,7 +4,7 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 
 
-namespace LunaLyrics.Assets.Scripts
+namespace LunaLyrics.Util
 {
     public struct PoolOptions
     {

@@ -1,11 +1,9 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
 
-namespace LunaLyrics.Assets.Scripts
+namespace LunaLyrics.Util
 {
     public class TransparentWindow : MonoBehaviour
     {

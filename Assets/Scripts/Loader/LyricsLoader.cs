@@ -1,13 +1,12 @@
 using UnityEngine;
 using UnityEngine.Networking;
 using Cysharp.Threading.Tasks;
-using LunaLyrics.Assets.Scripts;
 using System.Text.RegularExpressions;
 using System;
-using UnityEngine.UI;
+using LunaLyrics.Data;
 
 
-namespace LunaLyrics.Assets.Scripts
+namespace LunaLyrics.Loader
 {
     public static class LyricsLoader
     {

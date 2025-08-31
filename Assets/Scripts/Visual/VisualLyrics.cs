@@ -1,13 +1,12 @@
 using System.Collections;
-using System.Collections.Generic;
-using LunaLyrics.Assets.Scripts;
+using LunaLyrics.Data;
 using TMPro;
 using UnityEngine;
 
 
-namespace LunaLyrics.Assets.Scripts
+namespace LunaLyrics.Visual
 {
-    public class TextAnimator : MonoBehaviour
+    public class VisualLyrics : MonoBehaviour
     {
         public float updateInterval = 0.2f;
         public float positionJitterAmount = 0.005f;

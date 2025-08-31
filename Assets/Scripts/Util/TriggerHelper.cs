@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace LunaLyrics.Assets.Scripts
+namespace LunaLyrics.Util
 {
     public class TriggerHelper : MonoBehaviour
     {

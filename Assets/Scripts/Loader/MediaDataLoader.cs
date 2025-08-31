@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
-using LunaLyrics.Assets.Scripts;
-using TMPro;
+using LunaLyrics.Data;
+using LunaLyrics.Util;
+using LunaLyrics.Visual;
 using UnityEngine;
-using UnityEngine.UI;
 
 
-namespace LunaLyrics.Assets.Scripts
+namespace LunaLyrics.Loader
 {
     public class MediaDataLoader : MonoBehaviour
     {
@@ -22,7 +22,7 @@ namespace LunaLyrics.Assets.Scripts
         [DllImport(DllName)] private static extern double GetDurationInSeconds();
         [DllImport(DllName)] private static extern bool IsPlaying();
 
-        public TextAnimator lyricsText;
+        public VisualLyrics lyricsText;
         public Transform textParent;
         public Material colorMaterial;
         public Color[] textColors;
@@ -56,12 +56,12 @@ namespace LunaLyrics.Assets.Scripts
 
         private int currentLyricIndex = -1;
 
-        private ObjectPool<TextAnimator> objectPool;
+        private ObjectPool<VisualLyrics> objectPool;
 
         private void Start()
         {
-            objectPool = new ObjectPool<TextAnimator>(lyricsText, new PoolOptions(textParent, "Lyrics", 5), null, null, null);
-            TextAnimator.lastTextPos = Vector2.zero;
+            objectPool = new ObjectPool<VisualLyrics>(lyricsText, new PoolOptions(textParent, "Lyrics", 5), null, null, null);
+            VisualLyrics.lastTextPos = Vector2.zero;
 
             if (InitializeMediaManager())
             {
@@ -146,7 +146,7 @@ namespace LunaLyrics.Assets.Scripts
                 var mediaKey = $"{_title}-{_artist}";
                 if (wasHasDataLastFrame != _hasData || mediaKey != wasMediaKey)
                 {
-                    TextAnimator.lastTextPos = Vector2.zero;
+                    VisualLyrics.lastTextPos = Vector2.zero;
                     objectPool.Clear();
                     colorMaterial.SetColor("_GlowColor", textColors[UnityEngine.Random.Range(0, textColors.Length)]);
                     lyricsData = emptyData;
@@ -186,7 +186,7 @@ namespace LunaLyrics.Assets.Scripts
             }
         }
 
-        public void ReturnLyrics(TextAnimator obj)
+        public void ReturnLyrics(VisualLyrics obj)
         {
             objectPool.Push(obj);
         }
