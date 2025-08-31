@@ -96,7 +96,6 @@ namespace LunaLyrics.Loader
                             Text = RemoveSpaces(lyricsStr) // 앞뒤 공백 제거
                         });
                     }
-
                 }
             }
             catch (Exception) // 오류 발생 시 (곡 데이터 없음, 기타 변환 오류 등)

@@ -82,7 +82,7 @@ namespace LunaLyrics.Visual
 
         private Vector2 UpdateTextPosition(float textWidth, float textHeight)
         {
-            Vector3 direction = Random.insideUnitCircle;
+            Vector3 direction = new Vector2((Random.value * (Random.value < 0.5f ? -1 : 1)) - 0.5f, (0.5f + Random.value * 2) * (Random.value < 0.5f ? -1 : 1)).normalized;
             Vector3 newPosition;
 
             // 기존 위치에서 무작위 방향 & 거리로 이동

@@ -228,8 +228,8 @@ MonoBehaviour:
   - {r: 0.06666663, g: 0.93333334, b: 0.13090153, a: 0.47058824}
   - {r: 0.93333334, g: 0.074888974, b: 0.06666663, a: 0.47058824}
   - {r: 0.93333334, g: 0.552628, b: 0.06666663, a: 0.47058824}
-  minDistance: 500
-  randomOffset: 800
+  minDistance: 400
+  randomOffset: 200
   update: 0.15
   duration: 2.5
   positionJitter: {x: 0.005, y: 0.005}
