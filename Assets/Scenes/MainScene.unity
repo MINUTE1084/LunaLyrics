@@ -156,7 +156,7 @@ MonoBehaviour:
   m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1.5
-  m_ReferenceResolution: {x: 2560, y: 1440}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 1
   m_PhysicalUnit: 3
@@ -228,15 +228,16 @@ MonoBehaviour:
   - {r: 0.06666663, g: 0.93333334, b: 0.13090153, a: 0.47058824}
   - {r: 0.93333334, g: 0.074888974, b: 0.06666663, a: 0.47058824}
   - {r: 0.93333334, g: 0.552628, b: 0.06666663, a: 0.47058824}
-  minDistance: 400
-  randomOffset: 200
+  minDistance: 200
+  randomOffset: 0
+  maxUsedPosLength: 3
   update: 0.15
-  duration: 2.5
+  duration: 1
   positionJitter: {x: 0.005, y: 0.005}
   scaleJitter: {x: 0.03, y: 0.03}
   minAmount: 4
   stepAmount: 0.2
-  stairCount: 20
+  stairCount: 10
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
