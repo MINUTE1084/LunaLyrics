@@ -1,99 +1,96 @@
+using System;
 using System.Collections;
 using LunaLyrics.Data;
+using LunaLyrics.Util;
 using TMPro;
 using UnityEngine;
-
+using Random = UnityEngine.Random;
+using Vector2 = UnityEngine.Vector2;
 
 namespace LunaLyrics.Visual
 {
+    [RequireComponent(typeof(RectTransform))]
     public class VisualLyrics : MonoBehaviour
     {
-        public float updateInterval = 0.2f;
-        public float positionJitterAmount = 0.005f;
-        public float scaleJitterAmount = 0.002f;
-        public float disappearDelay = 2.5f;
+        [SerializeField] private TMP_Text textMeshPro;
+        [SerializeField] private Animator animator;
+        [SerializeField] private CanvasGroup canvasGroup;
+        [SerializeField] private RectTransform rectTransform;
 
-        public float startYPos = 3f;
-        public float randomYPosOffset = 0.25f;
-        public int randomYPosLevel = 3;
+        // Jitter Variable
+        private float _updateInterval;
+        private float _disappearDelay;
+        private Vector2 _positionJitterAmount;
+        private Vector2 _scaleJitterAmount;
 
+        // Stair Variable
+        private float _minStairAmount;
+        private float _stepStairAmount;
+        private int _stairCount;
+        private float _stairPos;
 
-        public float minDistance = 2.0f;
-        public float randomOffset = 1.0f;
+        // General Variable
+        private Coroutine _typingCoroutine;
+        private bool _isTyping;
 
-        public TMP_Text textMeshPro;
-        public Animator animator;
-        public CanvasGroup canvasGroup;
+        private float _timer;
+        private float _delayPerChar;
+        private float _targetInterval;
 
+        private ObjectPool<VisualLyrics> _objectPool;
+        private Func<float, float, Vector2> _onPositionUpdated;
 
-        private float timer = 0f;
-        private float randomYPos;
-        private float prevYPos;
-
-        private Coroutine typingCoroutine;
-        private bool isTyping;
-        private float delayPerChar;
-        private float targetInterval;
-
-        public static Vector3 lastTextPos;
-        private static float minX, maxX, minY, maxY;
-        private static bool posInit;
-
-        private RectTransform rectTransform;
-
-        void Awake()
+        #region Init
+        public void Init(ObjectPool<VisualLyrics> objectPool, Func<float, float, Vector2> onPositionUpdated)
         {
-            if (posInit) return;
-            rectTransform = GetComponent<RectTransform>();
-
-            RectTransform parentRect = rectTransform.parent.GetComponent<RectTransform>();
-            float screenWidth = parentRect.rect.width;
-            float screenHeight = parentRect.rect.height;
-
-            float paddingX = screenWidth * 0.05f;
-            float paddingY = screenHeight * 0.1f;
-
-            minX = parentRect.rect.xMin + paddingX;
-            maxX = parentRect.rect.xMax - paddingX;
-            minY = parentRect.rect.yMin + paddingY;
-            maxY = parentRect.rect.yMax - paddingY;
-
-            lastTextPos = Vector3.zero;
+            _objectPool = objectPool;
+            this._onPositionUpdated = onPositionUpdated;
         }
 
-        void OnEnable()
+        public void SetJitterData(float update, float duration, Vector2 positionJitter, Vector2 scaleJitter)
         {
-            canvasGroup.alpha = 1;
-            animator.enabled = false;
-            textMeshPro.maxVisibleCharacters = 0;
+            _updateInterval = update;
+            _disappearDelay = duration;
+            _positionJitterAmount = positionJitter;
+            _scaleJitterAmount = scaleJitter;
         }
+
+        public void SetStairData(float minAmount, float stepAmount, int stairCount)
+        {
+            _minStairAmount = minAmount;
+            _stepStairAmount = stepAmount;
+            _stairCount = stairCount;
+        }
+
         public void SetText(LyricLine line)
         {
-            animator.enabled = false;
+            // 초기화 
+            _timer = 0;
+            _isTyping = false;
+
             canvasGroup.alpha = 1;
+            animator.enabled = false;
+            textMeshPro.maxVisibleCharacters = 0;
             textMeshPro.rectTransform.anchoredPosition = Vector2.zero;
 
-            if (typingCoroutine != null)
-            {
-                StopCoroutine(typingCoroutine);
-            }
-            typingCoroutine = StartCoroutine(TypewriterRoutine(line.Text, Mathf.Clamp((float)line.LyricDuration * 0.8f, 0.2f, 3f)));
+            // 이전 타이핑 루틴 종료 후 실행
+            if (_typingCoroutine != null) StopCoroutine(_typingCoroutine);
+            _typingCoroutine = StartCoroutine(TypewriterRoutine(line.Text, Mathf.Clamp((float)line.LyricDuration * 0.8f, 0.2f, 3f)));
         }
+        #endregion
 
-        public void ResetText()
+        // 애니메이션 종료 시 실행됨
+        public void ReturnObject()
         {
-            if (typingCoroutine != null)
-            {
-                StopCoroutine(typingCoroutine);
-            }
-            textMeshPro.text = "";
-            textMeshPro.maxVisibleCharacters = 0;
+            _objectPool.Push(this);
         }
 
+        #region Update
         private IEnumerator TypewriterRoutine(string text, float duration)
         {
-            isTyping = true;
+            _isTyping = true;
 
+            // 최대 출력 시 텍스트 길이를 가져 온 후, 화면 밖으로 나가지 않도록 보간
             textMeshPro.text = text;
             textMeshPro.maxVisibleCharacters = text.Length;
             textMeshPro.ForceMeshUpdate();
@@ -101,75 +98,58 @@ namespace LunaLyrics.Visual
             var textHeight = textMeshPro.preferredHeight;
             textMeshPro.maxVisibleCharacters = 0;
             textMeshPro.ForceMeshUpdate();
+            rectTransform.anchoredPosition = _onPositionUpdated.Invoke(textWidth, textHeight);
 
-            Vector3 direction = Random.insideUnitCircle.normalized;
-            Vector3 newPosition;
-
-            int loopCount = 0;
-            do
-            {
-                newPosition = lastTextPos + direction * (minDistance + Random.Range(0, randomOffset));
-
-                if (newPosition.x < minX) newPosition.x = maxX - newPosition.x;
-                if (newPosition.x > maxX) newPosition.x -= maxX;
-                if (newPosition.y < minY) newPosition.y = maxY - newPosition.x;
-                if (newPosition.y > maxY) newPosition.y -= maxY;
-
-                newPosition.x = Mathf.Clamp(newPosition.x, minX, Mathf.Max(minX, maxX - textWidth));
-                newPosition.y = Mathf.Clamp(newPosition.y, minY + textHeight / 2, maxY - textHeight / 2);
-            }
-            while (((lastTextPos - newPosition).magnitude < minDistance) && loopCount++ < 30);
-
-            lastTextPos = newPosition;
-            rectTransform.anchoredPosition = lastTextPos;
-
-            loopCount = 0;
-            do
-            {
-                randomYPos = (startYPos + (randomYPosOffset * Random.Range(1, randomYPosLevel))) * (Random.value < 0.5f ? -1 : 1);
-            }
-            while ((prevYPos == randomYPos) && loopCount++ < 30);
-
-            prevYPos = randomYPos;
+            // 기울기 각도 랜덤 지정, Y좌표에 따라 화면 밖으로 나가지 않도록 보간
+            _stairPos = (_minStairAmount + (_stepStairAmount * Random.Range(1, _stairCount))) * (Random.value < 0.5f ? -1 : 1);
 
             var viewpoint = Camera.main.WorldToViewportPoint(transform.position);
-            if (viewpoint.y < 0.25f) randomYPos = Mathf.Abs(randomYPos);
-            if (viewpoint.y > 0.75f) randomYPos = -Mathf.Abs(randomYPos);
+            if (viewpoint.y < 0.25f) _stairPos = Mathf.Abs(_stairPos);
+            if (viewpoint.y > 0.75f) _stairPos = -Mathf.Abs(_stairPos);
 
+            // 프레임 대기
             yield return null;
 
-            delayPerChar = duration / text.Length;
-            targetInterval = Mathf.Max(delayPerChar, updateInterval);
+            // 출력 딜레이 계산, 지터링 딜레이보다 길면 출력 딜레이가 지터링 딜레이가 됨
+            _delayPerChar = duration / text.Length;
+            _targetInterval = Mathf.Max(_delayPerChar, _updateInterval);
 
             for (int i = 1; i <= text.Length; i++)
             {
+                // 한글자 씩 출력 + 출력 할 때마다 지터링 실행
                 textMeshPro.maxVisibleCharacters = i;
                 ApplyJitterToVisibleCharacters();
-                yield return new WaitForSeconds(delayPerChar);
+                yield return new WaitForSeconds(_delayPerChar);
             }
 
-            isTyping = false;
+            _isTyping = false;
 
-            yield return new WaitForSeconds(disappearDelay);
+            yield return new WaitForSeconds(_disappearDelay);
 
+            // 페이드아웃 애니메이션 시작
             animator.enabled = true;
         }
 
-        void Update()
+        private void Update()
         {
-            timer += Time.deltaTime;
-            if (timer >= targetInterval)
+            if (_isTyping) return;
+
+            // 타이핑 안 하고 있을 때만 지터링 자동 진행
+
+            _timer += Time.deltaTime;
+            if (_timer >= _targetInterval)
             {
-                timer = 0f;
-                if (!isTyping) ApplyJitterToVisibleCharacters();
+                _timer = 0f;
+                ApplyJitterToVisibleCharacters();
             }
         }
 
-        void ApplyJitterToVisibleCharacters()
+        private void ApplyJitterToVisibleCharacters()
         {
             textMeshPro.ForceMeshUpdate();
             var textInfo = textMeshPro.textInfo;
 
+            // 현재 보이는 글자만 버텍스 수정
             int visibleCharacterCount = textMeshPro.maxVisibleCharacters;
             if (visibleCharacterCount == 0) return;
 
@@ -181,23 +161,29 @@ namespace LunaLyrics.Visual
                 var meshInfo = textInfo.meshInfo[charInfo.materialReferenceIndex];
                 var vertices = meshInfo.vertices;
 
-                Vector3 positionOffset = new Vector3(
-                    Random.Range(-positionJitterAmount, positionJitterAmount),
-                    Random.Range(-positionJitterAmount, positionJitterAmount) + randomYPos * i,
+                Vector3 positionOffset = new(
+                    Random.Range(-_positionJitterAmount.x, _positionJitterAmount.x),
+                    Random.Range(-_positionJitterAmount.y, _positionJitterAmount.y) + _stairPos * i,
                     0);
-                float scaleMultiplier = 1.0f + Random.Range(-scaleJitterAmount, scaleJitterAmount);
+
+                Vector3 scaleMultiplier = new(
+                    1.0f + Random.Range(-_scaleJitterAmount.x, _scaleJitterAmount.x),
+                    1.0f + Random.Range(-_scaleJitterAmount.y, _scaleJitterAmount.y),
+                    1.0f);
 
                 Vector3 center = (vertices[charInfo.vertexIndex + 0] + vertices[charInfo.vertexIndex + 2]) / 2f;
 
+                // 글자의 각 버텍스에 랜덤 위치/크기 적용 (지터링 효과)
                 for (int j = 0; j < 4; j++)
                 {
                     int vertexIndex = charInfo.vertexIndex + j;
                     Vector3 originalVertex = vertices[vertexIndex] - center;
-                    Vector3 modifiedVertex = (originalVertex * scaleMultiplier) + center + positionOffset;
+                    Vector3 modifiedVertex = new Vector3(originalVertex.x * scaleMultiplier.x, originalVertex.y * scaleMultiplier.y, originalVertex.z) + center + positionOffset;
                     vertices[vertexIndex] = modifiedVertex;
                 }
             }
 
+            // 버텍스 업데이트
             for (int i = 0; i < textInfo.meshInfo.Length; i++)
             {
                 var meshInfo = textInfo.meshInfo[i];
@@ -208,5 +194,6 @@ namespace LunaLyrics.Visual
                 }
             }
         }
+        #endregion
     }
 }

@@ -6,13 +6,13 @@ using Object = UnityEngine.Object;
 
 namespace LunaLyrics.Util
 {
-    public struct PoolOptions
+    public readonly struct PoolOption
     {
         public readonly Transform ObjectParent;
         public readonly string ObjectName;
         public readonly int InitialCount;
 
-        public PoolOptions(Transform objectParent, string objectName, int initialCount)
+        public PoolOption(Transform objectParent, string objectName, int initialCount)
         {
             ObjectParent = objectParent;
             ObjectName = objectName;
@@ -26,15 +26,13 @@ namespace LunaLyrics.Util
         private readonly List<T> _popList;
 
         private readonly T _oriObject;
-        private readonly PoolOptions _options;
-        private readonly Action<T> _preInitObjectAction;
+        private readonly PoolOption _options;
         private readonly Action<T> _initObjectAction;
         private readonly Action<T> _releaseObjectAction;
 
         private int _allocCount;
 
-        public ObjectPool(T oriObject, PoolOptions options, Action<T> preInitObjectAction,
-            Action<T> initObjectAction, Action<T> releaseObjectAction)
+        public ObjectPool(T oriObject, PoolOption options, Action<T> initObjectAction, Action<T> releaseObjectAction)
         {
             _poolStack = new Stack<T>();
             _popList = new List<T>();
@@ -42,7 +40,6 @@ namespace LunaLyrics.Util
             _options = options;
             _allocCount = 0;
 
-            _preInitObjectAction = preInitObjectAction;
             _initObjectAction = initObjectAction;
             _releaseObjectAction = releaseObjectAction;
 
@@ -96,8 +93,6 @@ namespace LunaLyrics.Util
                 var newObj = Object.Instantiate(_oriObject, _options.ObjectParent, false);
                 newObj.name = _options.ObjectName + _allocCount;
                 newObj.gameObject.SetActive(false);
-
-                _preInitObjectAction?.Invoke(newObj);
 
                 _poolStack.Push(newObj);
                 ++_allocCount;

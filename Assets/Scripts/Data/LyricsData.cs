@@ -16,12 +16,14 @@ namespace LunaLyrics.Data
         public string syncedLyrics;
     }
 
+    [System.Serializable]
     public struct SyncedLyricsData
     {
         public double duration;
         public List<LyricLine> syncedLyrics;
     }
 
+    [System.Serializable]
     public class LyricLine
     {
         public double TimeInSeconds;
