@@ -9,6 +9,10 @@ jobs:
   build-and-release:
     name: Build for Windows and Create Release
     runs-on: windows-latest
+
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -59,3 +63,4 @@ jobs:
           asset_path: ./${{ github.ref_name }}.zip
           asset_name: ${{ github.ref_name }}.zip
           asset_content_type: application/zip
+
