@@ -58,6 +58,16 @@ jobs:
         with:
           name: windows-build
 
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get Tag Commit Message
+        id: get_commit_message
+        run: |
+          echo "commit_body=$(git log -1 --pretty=%B ${{ github.ref_name }})" >> $GITHUB_OUTPUT
+
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
@@ -65,11 +75,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref_name }} 
-          body: |
-            Empty
+          release_name: ${{ github.ref_name }}
+          body: ${{ steps.get_commit_message.outputs.commit_body }}
           draft: false
-          prerelease: false
+          prerelease: ${{ contains(github.ref_name, 'pre-') }}
 
       - name: Upload asset to release
         uses: actions/upload-release-asset@v1
