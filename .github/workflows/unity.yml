@@ -53,11 +53,6 @@ jobs:
       contents: write
 
     steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: windows-build
-
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -71,6 +66,11 @@ jobs:
             git log -1 --pretty=%B ${{ github.ref_name }}
             echo 'EOF'
           } >> $GITHUB_OUTPUT
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-build
 
       - name: Create GitHub Release
         id: create_release
