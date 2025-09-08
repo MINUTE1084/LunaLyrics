@@ -71,7 +71,7 @@ namespace LunaLyrics.Visual
             canvasGroup.alpha = 1;
             animator.enabled = false;
             textMeshPro.maxVisibleCharacters = 0;
-            textMeshPro.rectTransform.anchoredPosition = Vector2.zero;
+            textMeshPro.rectTransform.anchoredPosition3D = Vector3.zero;
 
             // 이전 타이핑 루틴 종료 후 실행
             if (_typingCoroutine != null) StopCoroutine(_typingCoroutine);
