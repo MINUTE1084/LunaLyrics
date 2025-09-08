@@ -2,6 +2,11 @@ using System.Collections.Generic;
 
 namespace LunaLyrics.Data
 {
+    public struct MediaSearchData
+    {
+        public MediaData[] results;
+    }
+
     public struct MediaData
     {
         public int id;

@@ -60,13 +60,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a33a197c153004b4b82a7dc8ab92975f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  updateInterval: 0.2
-  positionJitterAmount: 0.005
-  scaleJitterAmount: 0.02
-  disappearDelay: 2.5
-  startYPos: 3
-  randomYPosOffset: 0.2
-  randomYPosLevel: 30
   textMeshPro: {fileID: 3425237782920105970}
   animator: {fileID: 5637965320672222822}
   canvasGroup: {fileID: 1751968755729503225}
@@ -172,7 +165,7 @@ MonoBehaviour:
   m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 97d16a6394fef2345bda6ad24441d416, type: 2}
-  m_sharedMaterial: {fileID: 1777572477395360448, guid: 97d16a6394fef2345bda6ad24441d416, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: f69edcdefd78f2f4d9a3a597e8d44e3b, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

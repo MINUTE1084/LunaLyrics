@@ -38,10 +38,10 @@ namespace LunaLyrics.Visual
         private float _targetInterval;
 
         private ObjectPool<VisualLyrics> _objectPool;
-        private Func<float, float, Vector2> _onPositionUpdated;
+        private Func<float, float, Vector3> _onPositionUpdated;
 
         #region Init
-        public void Init(ObjectPool<VisualLyrics> objectPool, Func<float, float, Vector2> onPositionUpdated)
+        public void Init(ObjectPool<VisualLyrics> objectPool, Func<float, float, Vector3> onPositionUpdated)
         {
             _objectPool = objectPool;
             this._onPositionUpdated = onPositionUpdated;
@@ -71,7 +71,7 @@ namespace LunaLyrics.Visual
             canvasGroup.alpha = 1;
             animator.enabled = false;
             textMeshPro.maxVisibleCharacters = 0;
-            textMeshPro.rectTransform.anchoredPosition = Vector2.zero;
+            textMeshPro.rectTransform.anchoredPosition3D = Vector3.zero;
 
             // 이전 타이핑 루틴 종료 후 실행
             if (_typingCoroutine != null) StopCoroutine(_typingCoroutine);
@@ -98,7 +98,9 @@ namespace LunaLyrics.Visual
             var textHeight = textMeshPro.preferredHeight;
             textMeshPro.maxVisibleCharacters = 0;
             textMeshPro.ForceMeshUpdate();
-            rectTransform.anchoredPosition = _onPositionUpdated.Invoke(textWidth, textHeight);
+            rectTransform.anchoredPosition3D = _onPositionUpdated.Invoke(textWidth, textHeight);
+            //rectTransform.localScale = Vector3.one * Random.Range(0.7f, 1f);
+            rectTransform.SetAsLastSibling();
 
             // 기울기 각도 랜덤 지정, Y좌표에 따라 화면 밖으로 나가지 않도록 보간
             _stairPos = (_minStairAmount + (_stepStairAmount * Random.Range(1, _stairCount))) * (Random.value < 0.5f ? -1 : 1);
@@ -137,6 +139,8 @@ namespace LunaLyrics.Visual
             // 타이핑 안 하고 있을 때만 지터링 자동 진행
 
             _timer += Time.deltaTime;
+            ApplyAlphaData();
+
             if (_timer >= _targetInterval)
             {
                 _timer = 0f;
@@ -160,6 +164,7 @@ namespace LunaLyrics.Visual
 
                 var meshInfo = textInfo.meshInfo[charInfo.materialReferenceIndex];
                 var vertices = meshInfo.vertices;
+                var colors = meshInfo.colors32;
 
                 Vector3 positionOffset = new(
                     Random.Range(-_positionJitterAmount.x, _positionJitterAmount.x),
@@ -180,6 +185,11 @@ namespace LunaLyrics.Visual
                     Vector3 originalVertex = vertices[vertexIndex] - center;
                     Vector3 modifiedVertex = new Vector3(originalVertex.x * scaleMultiplier.x, originalVertex.y * scaleMultiplier.y, originalVertex.z) + center + positionOffset;
                     vertices[vertexIndex] = modifiedVertex;
+
+                    Color32 originalColor = colors[vertexIndex];
+                    byte newAlpha = (byte)(originalColor.a * canvasGroup.alpha);
+                    Color32 newColor = new(originalColor.r, originalColor.g, originalColor.b, newAlpha);
+                    colors[vertexIndex] = newColor;
                 }
             }
 
@@ -190,6 +200,49 @@ namespace LunaLyrics.Visual
                 if (meshInfo.vertexCount > 0)
                 {
                     meshInfo.mesh.vertices = meshInfo.vertices;
+                    meshInfo.mesh.colors32 = meshInfo.colors32;
+
+                    textMeshPro.UpdateGeometry(meshInfo.mesh, i);
+                }
+            }
+        }
+
+        private void ApplyAlphaData()
+        {
+            var textInfo = textMeshPro.textInfo;
+
+            // 현재 보이는 글자만 버텍스 수정
+            int visibleCharacterCount = textMeshPro.maxVisibleCharacters;
+            if (visibleCharacterCount == 0) return;
+
+            for (int i = 0; i < visibleCharacterCount; i++)
+            {
+                var charInfo = textInfo.characterInfo[i];
+                if (!charInfo.isVisible) continue;
+
+                var meshInfo = textInfo.meshInfo[charInfo.materialReferenceIndex];
+                var colors = meshInfo.colors32;
+
+                // 글자의 각 버텍스에 랜덤 위치/크기 적용 (지터링 효과)
+                for (int j = 0; j < 4; j++)
+                {
+                    int vertexIndex = charInfo.vertexIndex + j;
+
+                    Color32 originalColor = colors[vertexIndex];
+                    byte newAlpha = (byte)(byte.MaxValue * canvasGroup.alpha);
+                    Color32 newColor = new(originalColor.r, originalColor.g, originalColor.b, newAlpha);
+                    colors[vertexIndex] = newColor;
+                }
+            }
+
+            for (int i = 0; i < textInfo.meshInfo.Length; i++)
+            {
+                var meshInfo = textInfo.meshInfo[i];
+                if (meshInfo.vertexCount > 0)
+                {
+                    meshInfo.mesh.vertices = meshInfo.vertices;
+                    meshInfo.mesh.colors32 = meshInfo.colors32;
+
                     textMeshPro.UpdateGeometry(meshInfo.mesh, i);
                 }
             }
