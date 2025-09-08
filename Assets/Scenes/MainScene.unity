@@ -1258,8 +1258,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 492eda0170a36ca4b8695b8f8a82f3b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraMove: {x: 3.2, y: 1.8, z: 0}
-  moveInterval: 0.1
+  cameraMove: {x: 1.6, y: 0.8, z: 0}
+  moveInterval: 0.99
   zoomInterval: 0.95
 --- !u!1 &537160306
 GameObject:
